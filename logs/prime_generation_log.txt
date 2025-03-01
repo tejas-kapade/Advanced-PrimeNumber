@@ -1,2 +1,10 @@
 Requested Prime Generation Limit: 9090, Generated Prime Count: 1127, Date and Time: 2025-03-01 20:20:58
 Requested Prime Generation Limit: 9999, Generated Prime Count: 1229, Date and Time: 2025-03-01 20:23:43
+Requested Prime Generation Limit: 99, Generated Prime Count: 25, Date and Time: 2025-03-01 20:32:36
+Requested Prime Generation Limit: 9999, Generated Prime Count: 1229, Date and Time: 2025-03-01 20:32:45
+Requested Prime Generation Limit: 99, Generated Prime Count: 25, Date and Time: 2025-03-01 20:41:15
+Requested Prime Generation Limit: 9999, Generated Prime Count: 1229, Date and Time: 2025-03-01 20:41:26
+Requested Prime Generation Limit: 77, Generated Prime Count: 21, Date and Time: 2025-03-01 20:45:17
+Requested Prime Generation Limit: 333, Generated Prime Count: 67, Date and Time: 2025-03-01 20:46:25
+Requested Prime Generation Limit: 222, Generated Prime Count: 47, Date and Time: 2025-03-01 20:46:38
+Requested Prime Generation Limit: 2222, Generated Prime Count: 331, Date and Time: 2025-03-01 20:46:41

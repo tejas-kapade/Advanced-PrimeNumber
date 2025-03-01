@@ -9,7 +9,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from datetime import datetime
 import tkinter as tk
-from tkinter import messagebox, Toplevel, Scrollbar, filedialog, simpledialog
+from tkinter import messagebox, Toplevel, Scrollbar, filedialog, simpledialog, scrolledtext
 from tkinter import ttk
 import subprocess
 
@@ -296,6 +296,26 @@ def view_logs():
     top.grid_rowconfigure(0, weight=1)
     top.grid_columnconfigure(0, weight=1)
 
+# Function to view generated prime numbers
+def view_generated_primes():
+    # Create a new window to display the generated prime numbers
+    view_window = tk.Toplevel(root)
+    view_window.title("Generated Prime Numbers")
+
+    # Create a scrollable text area to display the prime numbers
+    prime_text = scrolledtext.ScrolledText(view_window, width=50, height=20, wrap=tk.WORD, font=("Arial", 12))
+    prime_text.pack(padx=10, pady=10)
+
+    # Insert the generated prime numbers into the text area
+    if generated_primes:  # Check if there are generated primes
+        prime_text.insert(tk.END, "\n".join(map(str, generated_primes)))
+    else:
+        prime_text.insert(tk.END, "No prime numbers generated yet. Please generate prime numbers first.")
+
+    # Disable editing in the text area
+    prime_text.config(state=tk.DISABLED)
+
+
 # Function to delete logs and reports
 def delete_all_data():
     # Prompt for password before proceeding with deletion
@@ -374,6 +394,11 @@ def add_delete_data_button(root):
     delete_button = tk.Button(root, text="Delete All Data", command=delete_all_data, font=("Arial", 12), bg="lightcoral", fg="black")
     delete_button.grid(row=9, column=0, columnspan=3, pady=10)
 
+# Add the "View Generated Prime Numbers" button to the main window
+def add_view_primes_button(root):
+    view_button = tk.Button(root, text="View Generated Prime Numbers", command=view_generated_primes, font=("Arial", 12), bg="lightgreen", fg="black")
+    view_button.grid(row=10, column=0, columnspan=3, pady=10)
+
 # Main GUI setup
 root = tk.Tk()
 root.title("Prime Number Generator")
@@ -430,6 +455,10 @@ button_view_logs.grid(row=8, column=0, padx=5, pady=5)
 button_view_reports = tk.Button(root, text="View Reports", command=list_reports, font=font_style, bg='lightblue', fg='black')
 button_view_reports.grid(row=8, column=1, padx=5, pady=5)
 
+# Add the "Delete All Data" button to the interface
 add_delete_data_button(root)
+
+# Add the "View Generated Prime Numbers" button
+add_view_primes_button(root)
 
 root.mainloop()
