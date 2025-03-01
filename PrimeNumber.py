@@ -1,9 +1,12 @@
+import os
 import math
 import time
 import csv
 from tqdm import tqdm  # Import tqdm for progress bar
 from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from datetime import datetime
 
 # Memoization cache for previously checked primes
 prime_cache = {}
@@ -45,39 +48,68 @@ def generate_primes_up_to(n):
 
     return primes
 
+# Function to generate a timestamped filename for CSV or PDF
+def get_timestamped_filename(base_name, extension):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    return f"{base_name}_{timestamp}{extension}"
+
 # Function to export primes to a CSV file
-def export_to_csv(primes, filename="primes.csv"):
+def export_to_csv(primes):
     try:
-        with open(filename, mode='w', newline='') as file:
+        # Ensure the 'reports' directory exists
+        if not os.path.exists('reports'):
+            os.makedirs('reports')
+
+        # Generate a timestamped filename for the CSV
+        filename = get_timestamped_filename("primes", ".csv")
+        filepath = os.path.join('reports', filename)
+        
+        with open(filepath, mode='w', newline='') as file:
             writer = csv.writer(file)
             writer.writerow(["Prime Numbers"])
             for prime in primes:
                 writer.writerow([prime])
-        print(f"Prime numbers have been saved to {filename}.")
+        print(f"Prime numbers have been saved to {filepath}.")
     except Exception as e:
         print(f"Error while saving to CSV: {e}")
 
-# Function to export primes to a PDF file
-def export_to_pdf(primes, filename="primes.pdf"):
+# Function to export primes to a PDF file in table format
+def export_to_pdf(primes):
     try:
-        c = canvas.Canvas(filename, pagesize=letter)
-        c.setFont("Helvetica", 10)
-        c.drawString(30, 750, "Prime Numbers:")
+        # Ensure the 'reports' directory exists
+        if not os.path.exists('reports'):
+            os.makedirs('reports')
+
+        # Generate a timestamped filename for the PDF
+        filename = get_timestamped_filename("primes", ".pdf")
+        filepath = os.path.join('reports', filename)
+
+        # Create PDF document
+        doc = SimpleDocTemplate(filepath, pagesize=letter)
         
-        y_position = 730  # Starting position for the primes
+        # Prepare data for the table
+        data = [["Prime Numbers"]]  # Header row
+        for prime in primes:
+            data.append([str(prime)])
+        
+        # Create the table
+        table = Table(data)
+        
+        # Style the table
+        table.setStyle(TableStyle([
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),  # Header text color
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),  # Center align all cells
+            ('BACKGROUND', (0, 0), (-1, 0), colors.darkblue),  # Header background color
+            ('GRID', (0, 0), (-1, -1), 0.5, colors.black),  # Add gridlines
+            ('FONTNAME', (0, 0), (-1, -1), 'Helvetica'),  # Set font to Helvetica
+            ('FONTSIZE', (0, 0), (-1, -1), 10),  # Set font size
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),  # Padding for header row
+        ]))
 
-        for i, prime in enumerate(primes):
-            if y_position <= 50:  # Check if space on page is running out
-                c.showPage()
-                c.setFont("Helvetica", 10)
-                c.drawString(30, 750, "Prime Numbers:")
-                y_position = 730  # Reset the y position for a new page
+        # Build the PDF document with the table
+        doc.build([table])
 
-            c.drawString(30, y_position, str(prime))
-            y_position -= 12  # Move down for the next prime number
-
-        c.save()
-        print(f"Prime numbers have been saved to {filename}.")
+        print(f"Prime numbers have been saved to {filepath}.")
     except Exception as e:
         print(f"Error while saving to PDF: {e}")
 
