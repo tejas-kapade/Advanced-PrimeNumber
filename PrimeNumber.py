@@ -9,7 +9,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from datetime import datetime
 import tkinter as tk
-from tkinter import messagebox, Toplevel, Scrollbar, filedialog
+from tkinter import messagebox, Toplevel, Scrollbar, filedialog, simpledialog
 from tkinter import ttk
 import subprocess
 
@@ -272,18 +272,107 @@ def list_reports():
     delete_button.pack(pady=10)
 
 # Function to show logs in a new window
+# Function to show logs in a new window
 def view_logs():
     top = Toplevel(root)
     top.title("Logs")
 
+    # Create a resizable text box with scroll bar
     log_text = tk.Text(top, wrap=tk.WORD, height=20, width=80)
-    log_text.pack(padx=10, pady=10)
+    log_text.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)  # Allow expansion and resizing
 
+    scrollbar = Scrollbar(top, orient="vertical", command=log_text.yview)
+    scrollbar.pack(side=tk.RIGHT, fill="y")
+    log_text.config(yscrollcommand=scrollbar.set)
+
+    # Open the log file and display the contents in the text box
     log_filename = os.path.join("logs", "prime_generation_log.txt")
     if os.path.exists(log_filename):
         with open(log_filename, "r") as log_file:
             logs = log_file.read()
         log_text.insert(tk.END, logs)
+
+    # Make the window resizable
+    top.grid_rowconfigure(0, weight=1)
+    top.grid_columnconfigure(0, weight=1)
+
+# Function to delete logs and reports
+def delete_all_data():
+    # Prompt for password before proceeding with deletion
+    password = simpledialog.askstring("Password", "Enter the password to delete data:")
+
+    if password != "Prime@123":
+        messagebox.showerror("Incorrect Password", "The password you entered is incorrect.")
+        return
+
+    # Create a new window with checkboxes for deletion options
+    delete_window = tk.Toplevel(root)
+    delete_window.title("Delete Data Options")
+
+    # Create checkboxes for logs and reports deletion
+    var_logs = tk.BooleanVar()
+    var_reports = tk.BooleanVar()
+
+    checkbox_logs = tk.Checkbutton(delete_window, text="All Logs", variable=var_logs, font=("Arial", 12))
+    checkbox_logs.pack(padx=10, pady=5)
+
+    checkbox_reports = tk.Checkbutton(delete_window, text="All Reports", variable=var_reports, font=("Arial", 12))
+    checkbox_reports.pack(padx=10, pady=5)
+
+    # Delete button to confirm deletion
+    delete_button = tk.Button(delete_window, text="Delete Permanently", font=("Arial", 12), bg="lightcoral", fg="black",
+                               command=lambda: confirm_delete(var_logs.get(), var_reports.get(), delete_window))
+    delete_button.pack(padx=10, pady=10)
+
+# Function to confirm deletion and delete based on checkbox options
+def confirm_delete(delete_logs_option, delete_reports_option, window):
+    if not delete_logs_option and not delete_reports_option:
+        messagebox.showwarning("No Data Selected", "Please select at least one option (logs or reports) to delete.")
+        return
+    
+    # If "All Logs" checkbox is selected
+    if delete_logs_option:
+        delete_logs()
+
+    # If "All Reports" checkbox is selected
+    if delete_reports_option:
+        delete_reports()
+
+    messagebox.showinfo("Deletion Successful", "Selected data has been deleted permanently.")
+    
+    # Close the deletion window after completion
+    window.destroy()
+
+# Function to delete logs
+def delete_logs():
+    logs_folder = "logs"
+    if os.path.exists(logs_folder):
+        for filename in os.listdir(logs_folder):
+            file_path = os.path.join(logs_folder, filename)
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                messagebox.showerror("Error Deleting Log", f"Error deleting log file {filename}: {e}")
+    else:
+        messagebox.showwarning("No Logs Found", "No logs found to delete.")
+
+# Function to delete reports
+def delete_reports():
+    reports_folder = "reports"
+    if os.path.exists(reports_folder):
+        for filename in os.listdir(reports_folder):
+            file_path = os.path.join(reports_folder, filename)
+            try:
+                os.remove(file_path)
+            except Exception as e:
+                messagebox.showerror("Error Deleting Report", f"Error deleting report file {filename}: {e}")
+    else:
+        messagebox.showwarning("No Reports Found", "No reports found to delete.")
+
+# Add the "Delete All Data" button to the main window
+def add_delete_data_button(root):
+    delete_button = tk.Button(root, text="Delete All Data", command=delete_all_data, font=("Arial", 12), bg="lightcoral", fg="black")
+    delete_button.grid(row=9, column=0, columnspan=3, pady=10)
 
 # Main GUI setup
 root = tk.Tk()
@@ -340,5 +429,7 @@ button_view_logs.grid(row=8, column=0, padx=5, pady=5)
 
 button_view_reports = tk.Button(root, text="View Reports", command=list_reports, font=font_style, bg='lightblue', fg='black')
 button_view_reports.grid(row=8, column=1, padx=5, pady=5)
+
+add_delete_data_button(root)
 
 root.mainloop()
